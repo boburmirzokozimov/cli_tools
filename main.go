@@ -16,7 +16,10 @@ func main() {
 }
 
 func countWords(data []byte) int {
-	counter := 1
+	counter := 0
+	if len(data) > 0 {
+		counter++
+	}
 	for i := range data {
 		if data[i] == ' ' {
 			counter++
