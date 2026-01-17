@@ -3,32 +3,22 @@ package main
 import "testing"
 
 func TestCountWords(t *testing.T) {
-	input := "one two three four five"
-	expect := 5
-
-	result := countWords([]byte(input))
-
-	if result != expect {
-		t.Logf("expected %d, got %d", expect, result)
-		t.Fail()
+	tests := []struct {
+		name   string
+		input  string
+		expect int
+	}{
+		{name: "multiple words", input: "one two three four five", expect: 5},
+		{name: "empty string", input: "", expect: 0},
+		{name: "single space", input: " ", expect: 1},
 	}
 
-	input = ""
-	expect = 0
-	result = countWords([]byte(input))
-
-	if result != expect {
-		t.Logf("expected %d, got %d", expect, result)
-		t.Fail()
-	}
-
-	input = " "
-	expect = 1
-
-	result = countWords([]byte(input))
-
-	if result != expect {
-		t.Logf("expected %d, got %d", expect, result)
-		t.Fail()
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			result := countWords([]byte(tc.input))
+			if result != tc.expect {
+				t.Fatalf("expected %d, got %d", tc.expect, result)
+			}
+		})
 	}
 }
