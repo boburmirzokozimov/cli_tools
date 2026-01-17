@@ -15,7 +15,6 @@ func TestCountWords(t *testing.T) {
 
 	input = ""
 	expect = 0
-
 	result = countWords([]byte(input))
 
 	if result != expect {
