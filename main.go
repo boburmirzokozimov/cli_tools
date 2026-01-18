@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 )
@@ -11,21 +12,10 @@ func main() {
 		return
 	}
 
-	counter := countWords(file)
+	counter := CountWords(file)
 	fmt.Println(counter)
 }
 
-func countWords(data []byte) int {
-	counter := 0
-	if len(data) > 0 {
-		counter++
-	}
-	for i := range data {
-		if data[i] == ' ' {
-			counter++
-		}
-
-	}
-
-	return counter
+func CountWords(data []byte) int {
+	return len(bytes.Fields(data))
 }
