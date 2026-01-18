@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"unicode"
 )
 
 func main() {
@@ -25,19 +24,13 @@ func CountWords(data []byte) int {
 
 func CountWordsInFile(file *os.File) int {
 	wordsCount := 0
-	isInsideWord := false
-	reader := bufio.NewReader(file)
-	for {
-		r, _, err := reader.ReadRune()
-		if err != nil {
-			break
-		}
-		if !unicode.IsSpace(r) && !isInsideWord {
-			wordsCount++
-		}
-
-		isInsideWord = !unicode.IsSpace(r)
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanWords)
+	for scanner.Scan() {
+		wordsCount++
 	}
-
+	if err := scanner.Err(); err != nil {
+		log.Fatal("failed to scan file:", err)
+	}
 	return wordsCount
 }
