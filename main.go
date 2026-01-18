@@ -9,7 +9,7 @@ import (
 func main() {
 	file, err := os.ReadFile("./words.txt")
 	if err != nil {
-		return
+		os.Exit(1)
 	}
 
 	counter := CountWords(file)
