@@ -13,7 +13,7 @@ func main() {
 	for _, fileName := range fileNames {
 		wordsCount, err := CountWordsInFile(fileName)
 		if err != nil {
-			fmt.Println(os.Stderr, "counter: ", err)
+			fmt.Println("counter: ", err)
 			didErr = true
 			continue
 		}
