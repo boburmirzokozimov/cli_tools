@@ -11,15 +11,15 @@ func main() {
 	fileNames := os.Args[1:]
 	didErr := false
 	for _, fileName := range fileNames {
-		wordsCount, err := CountWordsInFile(fileName)
+		counts, err := CountFile(fileName)
 		if err != nil {
 			fmt.Println("counter: ", err)
 			didErr = true
 			continue
 		}
 
-		fmt.Println(wordsCount, fileName)
-		total += wordsCount
+		fmt.Println(counts, fileName)
+		total += counts.words
 	}
 	if len(fileNames) > 1 {
 		fmt.Println(total, "total")
