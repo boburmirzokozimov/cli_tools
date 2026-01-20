@@ -78,6 +78,18 @@ func CountBytes(file io.Reader) int {
 	return int(cnt)
 }
 
-func PrintCounts(counts Counts, filename string) {
-	fmt.Println(counts.words, counts.lines, counts.bytes, filename)
+func (this Counts) Print(w io.Writer, filename ...string) {
+	fmt.Fprintf(w, "%d %d %d", this.words, this.lines, this.bytes)
+
+	for _, name := range filename {
+		fmt.Fprintf(w, " %s", name)
+	}
+
+	fmt.Fprintf(w, "\n")
+}
+
+func (this *Counts) Add(other *Counts) {
+	this.words += other.words
+	this.lines += other.lines
+	this.bytes += other.bytes
 }

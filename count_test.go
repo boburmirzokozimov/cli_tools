@@ -31,3 +31,15 @@ func TestGetCounts(t *testing.T) {
 		})
 	}
 }
+
+func TestCountsAdd(t *testing.T) {
+	left := Counts{words: 2, lines: 1, bytes: 5}
+	right := Counts{words: 3, lines: 4, bytes: 7}
+
+	left.Add(&right)
+
+	expect := Counts{words: 5, lines: 5, bytes: 12}
+	if left != expect {
+		t.Fatalf("expected %+v, got %+v", expect, left)
+	}
+}

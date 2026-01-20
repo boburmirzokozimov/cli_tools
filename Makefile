@@ -1,5 +1,12 @@
+.PHONY: run test
+
+ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+
 run:
-	go run .
+	go run . $(ARGS)
 
 test:
-	go test . -v
+	go test -json ./... | gotestfmt
+
+%:
+	@:

@@ -18,20 +18,15 @@ func main() {
 			continue
 		}
 
-		fmt.Println(counts, fileName)
-		total.words += counts.words
-		total.lines += counts.lines
-		total.bytes += counts.bytes
+		counts.Print(os.Stdout, fileName)
+		total.Add(&counts)
 	}
 	if len(fileNames) > 1 {
-		PrintCounts(Counts{total.words, total.lines, total.bytes}, "total")
-		fmt.Println(total, "total")
+		total.Print(os.Stdout, "total")
 	}
 
 	if len(fileNames) == 0 {
-		counts := GetCounts(os.Stdin)
-
-		PrintCounts(Counts{counts.words, counts.lines, counts.bytes}, "stdin")
+		GetCounts(os.Stdin).Print(os.Stdout)
 	}
 	if didErr {
 		os.Exit(1)
