@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"text/tabwriter"
 )
 
 func main() {
@@ -15,6 +16,7 @@ func main() {
 
 	total := Counts{}
 	fileNames := flag.Args()
+	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	didErr := false
 	for _, fileName := range fileNames {
 		counts, err := CountFile(fileName)
@@ -24,18 +26,20 @@ func main() {
 			continue
 		}
 
-		counts.PrintWithOptions(os.Stdout, opts, fileName)
+		counts.PrintWithOptions(writer, opts, fileName)
 		total.Add(&counts)
 	}
 	if len(fileNames) > 1 {
-		total.PrintWithOptions(os.Stdout, opts, "total")
+		total.PrintWithOptions(writer, opts, "total")
 	}
 
 	if len(fileNames) == 0 {
-		GetCounts(os.Stdin).PrintWithOptions(os.Stdout, opts)
+		GetCounts(os.Stdin).PrintWithOptions(writer, opts)
 	}
 	if didErr {
+		writer.Flush()
 		os.Exit(1)
 	}
+	writer.Flush()
 
 }

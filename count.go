@@ -122,10 +122,10 @@ func (this Counts) PrintWithOptions(w io.Writer, opts DisplayOptions, filename .
 		fields = append(fields, strconv.Itoa(this.bytes))
 	}
 
-	fmt.Fprint(w, strings.Join(fields, " "))
+	fmt.Fprint(w, strings.Join(fields, "\t"))
 
 	for _, name := range filename {
-		fmt.Fprintf(w, " %s", name)
+		fmt.Fprintf(w, "\t%s", name)
 	}
 
 	fmt.Fprintf(w, "\n")

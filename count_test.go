@@ -51,9 +51,9 @@ func TestCountsPrintWithOptions(t *testing.T) {
 		options DisplayOptions
 		expect  string
 	}{
-		{name: "defaults when none selected", options: DisplayOptions{}, expect: "2 3 5\n"},
+		{name: "defaults when none selected", options: DisplayOptions{}, expect: "2\t3\t5\n"},
 		{name: "words only", options: DisplayOptions{Words: true}, expect: "2\n"},
-		{name: "lines and bytes", options: DisplayOptions{Lines: true, Bytes: true}, expect: "3 5\n"},
+		{name: "lines and bytes", options: DisplayOptions{Lines: true, Bytes: true}, expect: "3\t5\n"},
 	}
 
 	for _, tc := range tests {
