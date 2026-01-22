@@ -6,12 +6,27 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 )
 
 type Counts struct {
 	words int
 	lines int
 	bytes int
+}
+
+type DisplayOptions struct {
+	Words bool
+	Lines bool
+	Bytes bool
+}
+
+func (opts DisplayOptions) withDefaults() DisplayOptions {
+	if !opts.Words && !opts.Lines && !opts.Bytes {
+		return DisplayOptions{Words: true, Lines: true, Bytes: true}
+	}
+	return opts
 }
 
 func GetCounts(file io.ReadSeeker) Counts {
@@ -79,7 +94,23 @@ func CountBytes(file io.Reader) int {
 }
 
 func (this Counts) Print(w io.Writer, filename ...string) {
-	fmt.Fprintf(w, "%d %d %d", this.words, this.lines, this.bytes)
+	this.PrintWithOptions(w, DisplayOptions{Words: true, Lines: true, Bytes: true}, filename...)
+}
+
+func (this Counts) PrintWithOptions(w io.Writer, opts DisplayOptions, filename ...string) {
+	opts = opts.withDefaults()
+	fields := make([]string, 0, 3)
+	if opts.Words {
+		fields = append(fields, strconv.Itoa(this.words))
+	}
+	if opts.Lines {
+		fields = append(fields, strconv.Itoa(this.lines))
+	}
+	if opts.Bytes {
+		fields = append(fields, strconv.Itoa(this.bytes))
+	}
+
+	fmt.Fprint(w, strings.Join(fields, " "))
 
 	for _, name := range filename {
 		fmt.Fprintf(w, " %s", name)

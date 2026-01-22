@@ -43,3 +43,26 @@ func TestCountsAdd(t *testing.T) {
 		t.Fatalf("expected %+v, got %+v", expect, left)
 	}
 }
+
+func TestCountsPrintWithOptions(t *testing.T) {
+	counts := Counts{words: 2, lines: 3, bytes: 5}
+	tests := []struct {
+		name    string
+		options DisplayOptions
+		expect  string
+	}{
+		{name: "defaults when none selected", options: DisplayOptions{}, expect: "2 3 5\n"},
+		{name: "words only", options: DisplayOptions{Words: true}, expect: "2\n"},
+		{name: "lines and bytes", options: DisplayOptions{Lines: true, Bytes: true}, expect: "3 5\n"},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			counts.PrintWithOptions(&buf, tc.options)
+			if buf.String() != tc.expect {
+				t.Fatalf("expected %q, got %q", tc.expect, buf.String())
+			}
+		})
+	}
+}

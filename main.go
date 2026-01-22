@@ -1,14 +1,20 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 )
 
 func main() {
+	opts := DisplayOptions{}
+	flag.BoolVar(&opts.Words, "w", false, "print word count")
+	flag.BoolVar(&opts.Lines, "l", false, "print line count")
+	flag.BoolVar(&opts.Bytes, "c", false, "print byte count")
+	flag.Parse()
 
 	total := Counts{}
-	fileNames := os.Args[1:]
+	fileNames := flag.Args()
 	didErr := false
 	for _, fileName := range fileNames {
 		counts, err := CountFile(fileName)
@@ -18,15 +24,15 @@ func main() {
 			continue
 		}
 
-		counts.Print(os.Stdout, fileName)
+		counts.PrintWithOptions(os.Stdout, opts, fileName)
 		total.Add(&counts)
 	}
 	if len(fileNames) > 1 {
-		total.Print(os.Stdout, "total")
+		total.PrintWithOptions(os.Stdout, opts, "total")
 	}
 
 	if len(fileNames) == 0 {
-		GetCounts(os.Stdin).Print(os.Stdout)
+		GetCounts(os.Stdin).PrintWithOptions(os.Stdout, opts)
 	}
 	if didErr {
 		os.Exit(1)
