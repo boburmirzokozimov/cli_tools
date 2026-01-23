@@ -1,4 +1,4 @@
-package main
+package counter
 
 import (
 	"bufio"
@@ -9,25 +9,14 @@ import (
 	"strconv"
 	"strings"
 	"unicode"
+
+	"github.com/boburmirzokozimov/cli_tools/display"
 )
 
 type Counts struct {
 	words int
 	lines int
 	bytes int
-}
-
-type DisplayOptions struct {
-	Words bool
-	Lines bool
-	Bytes bool
-}
-
-func (opts DisplayOptions) withDefaults() DisplayOptions {
-	if !opts.Words && !opts.Lines && !opts.Bytes {
-		return DisplayOptions{Words: true, Lines: true, Bytes: true}
-	}
-	return opts
 }
 
 func GetCounts(file io.Reader) Counts {
@@ -105,20 +94,16 @@ func CountBytes(file io.Reader) int {
 	return int(cnt)
 }
 
-func (this Counts) Print(w io.Writer, filename ...string) {
-	this.PrintWithOptions(w, DisplayOptions{Words: true, Lines: true, Bytes: true}, filename...)
-}
+func (this Counts) PrintWithOptions(w io.Writer, opts display.DisplayOptions, filename ...string) {
 
-func (this Counts) PrintWithOptions(w io.Writer, opts DisplayOptions, filename ...string) {
-	opts = opts.withDefaults()
 	fields := make([]string, 0, 3)
-	if opts.Words {
+	if opts.ShowWords() {
 		fields = append(fields, strconv.Itoa(this.words))
 	}
-	if opts.Lines {
+	if opts.ShowLines() {
 		fields = append(fields, strconv.Itoa(this.lines))
 	}
-	if opts.Bytes {
+	if opts.ShowBytes() {
 		fields = append(fields, strconv.Itoa(this.bytes))
 	}
 

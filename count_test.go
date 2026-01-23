@@ -1,8 +1,10 @@
-package main
+package counter
 
 import (
 	"bytes"
 	"testing"
+
+	"github.com/boburmirzokozimov/cli_tools/display"
 )
 
 func TestGetCounts(t *testing.T) {
@@ -48,12 +50,12 @@ func TestCountsPrintWithOptions(t *testing.T) {
 	counts := Counts{words: 2, lines: 3, bytes: 5}
 	tests := []struct {
 		name    string
-		options DisplayOptions
+		options display.DisplayOptions
 		expect  string
 	}{
-		{name: "defaults when none selected", options: DisplayOptions{}, expect: "2\t3\t5\n"},
-		{name: "words only", options: DisplayOptions{Words: true}, expect: "2\n"},
-		{name: "lines and bytes", options: DisplayOptions{Lines: true, Bytes: true}, expect: "3\t5\n"},
+		{name: "defaults when none selected", options: display.DisplayOptions{}.WithDefaults(), expect: "2\t3\t5\n"},
+		{name: "words only", options: display.NewOptions(display.OptionsArgs{Words: true}), expect: "2\n"},
+		{name: "lines and bytes", options: display.NewOptions(display.OptionsArgs{Lines: true, Bytes: true}), expect: "3\t5\n"},
 	}
 
 	for _, tc := range tests {

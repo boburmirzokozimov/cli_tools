@@ -3,7 +3,7 @@
 ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
 
 run:
-	go run . $(ARGS)
+	go run ./cmd $(ARGS)
 
 test:
 	go test -json ./... | gotestfmt

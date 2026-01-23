@@ -5,21 +5,27 @@ import (
 	"fmt"
 	"os"
 	"text/tabwriter"
+
+	counter "github.com/boburmirzokozimov/cli_tools"
+	"github.com/boburmirzokozimov/cli_tools/display"
 )
 
 func main() {
-	opts := DisplayOptions{}
-	flag.BoolVar(&opts.Words, "w", false, "print word count")
-	flag.BoolVar(&opts.Lines, "l", false, "print line count")
-	flag.BoolVar(&opts.Bytes, "c", false, "print byte count")
+	args := display.NewOptionArgs()
+
+	opts := display.NewOptions(args)
+
+	flag.BoolVar(&args.Words, "w", false, "print word count")
+	flag.BoolVar(&args.Lines, "l", false, "print line count")
+	flag.BoolVar(&args.Bytes, "c", false, "print byte count")
 	flag.Parse()
 
-	total := Counts{}
+	total := counter.Counts{}
 	fileNames := flag.Args()
 	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	didErr := false
 	for _, fileName := range fileNames {
-		counts, err := CountFile(fileName)
+		counts, err := counter.CountFile(fileName)
 		if err != nil {
 			fmt.Println("counter: ", err)
 			didErr = true
@@ -34,7 +40,7 @@ func main() {
 	}
 
 	if len(fileNames) == 0 {
-		GetCounts(os.Stdin).PrintWithOptions(writer, opts)
+		counter.GetCounts(os.Stdin).PrintWithOptions(writer, opts)
 	}
 	if didErr {
 		writer.Flush()
