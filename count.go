@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"unicode"
 
 	"github.com/boburmirzokozimov/cli_tools/display"
@@ -125,4 +126,31 @@ func (this *Counts) Add(other *Counts) {
 	this.words += other.words
 	this.lines += other.lines
 	this.bytes += other.bytes
+}
+
+func CountFiles(filenames []string) (<-chan FileCountsResult, <-chan error) {
+	ch := make(chan FileCountsResult)
+	errCh := make(chan error)
+	wg := sync.WaitGroup{}
+
+	for _, filename := range filenames {
+		wg.Add(1)
+		go func(name string) {
+			defer wg.Done()
+			counts, err := CountFile(name)
+			if err != nil {
+				errCh <- err
+				return
+			}
+			ch <- FileCountsResult{Counts: counts, Filename: name}
+		}(filename)
+	}
+
+	go func() {
+		wg.Wait()
+		close(ch)
+		close(errCh)
+	}()
+
+	return ch, errCh
 }

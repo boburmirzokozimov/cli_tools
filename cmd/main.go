@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"sync"
 	"text/tabwriter"
 
 	counter "github.com/boburmirzokozimov/cli_tools"
@@ -26,30 +25,28 @@ func main() {
 	fileNames := flag.Args()
 	total := counter.Counts{}
 
-	ch := make(chan counter.FileCountsResult)
-	wg := sync.WaitGroup{}
+	ch, errCH := counter.CountFiles(fileNames)
 
-	for _, fileName := range fileNames {
-		wg.Add(1)
-		go func(name string) {
-			defer wg.Done()
-			counts, err := counter.CountFile(name)
-			if err != nil {
-				fmt.Println("counter: ", err)
-				didErr = true
-				return
+	for {
+		select {
+		case res, open := <-ch:
+			if !open {
+				ch = nil
+				break
 			}
-			ch <- counter.FileCountsResult{Counts: counts, Filename: name}
-		}(fileName)
-	}
-	go func() {
-		wg.Wait()
-		close(ch)
-	}()
-
-	for res := range ch {
-		total.Add(&res.Counts)
-		res.Counts.PrintWithOptions(writer, opts, res.Filename)
+			total.Add(&res.Counts)
+			res.Counts.PrintWithOptions(writer, opts, res.Filename)
+		case err, open := <-errCH:
+			if !open {
+				errCH = nil
+				break
+			}
+			fmt.Println("counter: ", err)
+			didErr = true
+		}
+		if ch == nil && errCH == nil {
+			break
+		}
 	}
 
 	if len(fileNames) > 1 {
