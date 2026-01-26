@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"sync"
 	"text/tabwriter"
 
 	counter "github.com/boburmirzokozimov/cli_tools"
@@ -13,28 +14,41 @@ import (
 func main() {
 	args := display.NewOptionArgs()
 
-	opts := display.NewOptions(args)
-
 	flag.BoolVar(&args.Words, "w", false, "print word count")
 	flag.BoolVar(&args.Lines, "l", false, "print line count")
 	flag.BoolVar(&args.Bytes, "c", false, "print byte count")
 	flag.Parse()
 
-	total := counter.Counts{}
-	fileNames := flag.Args()
+	opts := display.NewOptions(args).WithDefaults()
+
 	writer := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	didErr := false
-	for _, fileName := range fileNames {
-		counts, err := counter.CountFile(fileName)
-		if err != nil {
-			fmt.Println("counter: ", err)
-			didErr = true
-			continue
-		}
+	fileNames := flag.Args()
+	total := counter.Counts{}
 
-		counts.PrintWithOptions(writer, opts, fileName)
-		total.Add(&counts)
+	wg := sync.WaitGroup{}
+	wg.Add(len(fileNames))
+	l := sync.Mutex{}
+
+	for _, fileName := range fileNames {
+		go func(name string) {
+			defer wg.Done()
+
+			counts, err := counter.CountFile(name)
+			if err != nil {
+				l.Lock()
+				fmt.Println("counter: ", err)
+				didErr = true
+				l.Unlock()
+				return
+			}
+			l.Lock()
+			defer l.Unlock()
+			total.Add(&counts)
+			counts.PrintWithOptions(writer, opts, name)
+		}(fileName)
 	}
+	wg.Wait()
 	if len(fileNames) > 1 {
 		total.PrintWithOptions(writer, opts, "total")
 	}
