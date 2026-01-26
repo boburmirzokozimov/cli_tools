@@ -25,27 +25,14 @@ func main() {
 	fileNames := flag.Args()
 	total := counter.Counts{}
 
-	ch, errCH := counter.CountFiles(fileNames)
+	ch := counter.CountFiles(fileNames)
 
-	for {
-		select {
-		case res, open := <-ch:
-			if !open {
-				ch = nil
-				break
-			}
-			total.Add(&res.Counts)
-			res.Counts.PrintWithOptions(writer, opts, res.Filename)
-		case err, open := <-errCH:
-			if !open {
-				errCH = nil
-				break
-			}
-			fmt.Println("counter: ", err)
+	for res := range ch {
+		total.Add(&res.Counts)
+		res.Counts.PrintWithOptions(writer, opts, res.Filename)
+		if res.Err != nil {
+			fmt.Println("counter: ", res.Err)
 			didErr = true
-		}
-		if ch == nil && errCH == nil {
-			break
 		}
 	}
 

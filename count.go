@@ -23,6 +23,7 @@ type Counts struct {
 type FileCountsResult struct {
 	Counts   Counts
 	Filename string
+	Err      error
 }
 
 func GetCounts(file io.Reader) Counts {
@@ -128,9 +129,8 @@ func (this *Counts) Add(other *Counts) {
 	this.bytes += other.bytes
 }
 
-func CountFiles(filenames []string) (<-chan FileCountsResult, <-chan error) {
+func CountFiles(filenames []string) <-chan FileCountsResult {
 	ch := make(chan FileCountsResult)
-	errCh := make(chan error)
 	wg := sync.WaitGroup{}
 
 	for _, filename := range filenames {
@@ -138,19 +138,15 @@ func CountFiles(filenames []string) (<-chan FileCountsResult, <-chan error) {
 		go func(name string) {
 			defer wg.Done()
 			counts, err := CountFile(name)
-			if err != nil {
-				errCh <- err
-				return
-			}
-			ch <- FileCountsResult{Counts: counts, Filename: name}
+
+			ch <- FileCountsResult{Counts: counts, Filename: name, Err: err}
 		}(filename)
 	}
 
 	go func() {
 		wg.Wait()
 		close(ch)
-		close(errCh)
 	}()
 
-	return ch, errCh
+	return ch
 }
