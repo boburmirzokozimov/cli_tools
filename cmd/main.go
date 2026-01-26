@@ -26,29 +26,32 @@ func main() {
 	fileNames := flag.Args()
 	total := counter.Counts{}
 
+	ch := make(chan counter.FileCountsResult)
 	wg := sync.WaitGroup{}
-	wg.Add(len(fileNames))
-	l := sync.Mutex{}
 
 	for _, fileName := range fileNames {
+		wg.Add(1)
 		go func(name string) {
 			defer wg.Done()
-
 			counts, err := counter.CountFile(name)
 			if err != nil {
-				l.Lock()
 				fmt.Println("counter: ", err)
 				didErr = true
-				l.Unlock()
 				return
 			}
-			l.Lock()
-			defer l.Unlock()
-			total.Add(&counts)
-			counts.PrintWithOptions(writer, opts, name)
+			ch <- counter.FileCountsResult{Counts: counts, Filename: name}
 		}(fileName)
 	}
-	wg.Wait()
+	go func() {
+		wg.Wait()
+		close(ch)
+	}()
+
+	for res := range ch {
+		total.Add(&res.Counts)
+		res.Counts.PrintWithOptions(writer, opts, res.Filename)
+	}
+
 	if len(fileNames) > 1 {
 		total.PrintWithOptions(writer, opts, "total")
 	}

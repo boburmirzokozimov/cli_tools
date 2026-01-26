@@ -19,6 +19,11 @@ type Counts struct {
 	bytes int
 }
 
+type FileCountsResult struct {
+	Counts   Counts
+	Filename string
+}
+
 func GetCounts(file io.Reader) Counts {
 	count := Counts{}
 	reader := bufio.NewReader(file)
